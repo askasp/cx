@@ -3,7 +3,15 @@ defmodule CxWeb.PageLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, query: "", results: %{})}
+
+      {:ok, list} = :application.get_key(:cx, :modules)
+      commands = list
+       |> Enum.filter(& &1 |> Module.split |> Enum.take(1) == ~w|Command|)
+
+     flows= Enum.map(commands, fn command -> [command, CommandDispatcher.getAggregate(struct(command)), CommandDispatcher.resultingEvent(struct(command))] end)
+     IO.inspect(flows)
+
+    {:ok, assign(socket, query: "", results: %{}, flows: flows)}
   end
 
   @impl true
